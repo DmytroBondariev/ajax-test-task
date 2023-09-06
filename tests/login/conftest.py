@@ -1,6 +1,6 @@
 import pytest
 
-from framework.login_page import LoginPage
+from dev_in_test_app_team.framework.login_page import LoginPage
 
 
 @pytest.fixture(scope='function')
