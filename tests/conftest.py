@@ -4,7 +4,7 @@ import time
 import pytest
 from appium import webdriver
 
-from utils.android_utils import android_get_desired_capabilities
+from dev_in_test_app_team.utils.android_utils import android_get_desired_capabilities
 
 
 @pytest.fixture(scope='session')
