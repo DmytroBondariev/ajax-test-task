@@ -35,7 +35,7 @@ class Page:
 
 class LoginPage(Page):
     def find_login_button(self):
-        return self.find_element(AppiumBy.ACCESSIBILITY_ID, 'Log In')
+        return self.find_element(AppiumBy.XPATH, '//android.widget.TextView[@text="Log In"]')
 
     def find_email_field(self):
         return self.find_element(AppiumBy.ACCESSIBILITY_ID, 'Email')
@@ -56,7 +56,6 @@ class LoginPage(Page):
 @pytest.fixture(scope='function')
 def user_login_fixture(driver):
     yield LoginPage(driver)
-    driver.quit()
 
 
 @pytest.fixture(scope='session')
@@ -75,6 +74,7 @@ def run_appium_server():
 def driver(run_appium_server):
     driver = webdriver.Remote('http://localhost:4723', capabilities)
     yield driver
+    driver.quit()
 
 
 def test_user_login(user_login_fixture):
