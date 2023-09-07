@@ -86,7 +86,8 @@ def driver(run_appium_server):
     ("qa.ajax.app.automation@gmail.com", "qa_automation_password", "success"),
     ("invalid_email@example.com", "qa_automation_password", "failure"),
     ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
-    ("", "", "failure")
+    ("qa.ajax.app.automation@gmail.com", "  ", "failure"),
+    ("  ", "qa_automation_password", "failure"),
 ])
 def test_user_login(user_login_fixture, email, password, expected_result):
     login_page = user_login_fixture
