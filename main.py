@@ -38,10 +38,14 @@ class LoginPage(Page):
         return self.find_element(AppiumBy.XPATH, '//android.widget.TextView[@text="Log In"]')
 
     def find_email_field(self):
-        return self.find_element(AppiumBy.ACCESSIBILITY_ID, 'Email')
+        xpath_locator = '//android.widget.FrameLayout[1]/androidx.compose.ui.platform.ComposeView/' \
+                        'android.view.View/android.widget.EditText'
+        return self.find_element(AppiumBy.XPATH, xpath_locator)
 
     def find_password_field(self):
-        return self.find_element(AppiumBy.ACCESSIBILITY_ID, 'Password')
+        xpath_locator = "//android.widget.FrameLayout[2]/androidx.compose.ui.platform.ComposeView/" \
+                        "android.view.View/android.widget.EditText"
+        return self.find_element(AppiumBy.XPATH, xpath_locator)
 
     def click_element(self, element):
         element.click()
@@ -80,9 +84,7 @@ def driver(run_appium_server):
 def test_user_login(user_login_fixture):
     login_page = user_login_fixture
     login_page.click_element(login_page.find_login_button())
-    login_page.click_element(login_page.find_email_field())
-
-    # login_page.enter_email(login_page.find_email_field(), "qa.ajax.app.automation@gmail.com")
-    # login_page.enter_password(login_page.find_password_field(), "qa_automation_password")
+    login_page.enter_email(login_page.find_email_field(), "qa.ajax.app.automation@gmail.com")
+    login_page.enter_password(login_page.find_password_field(), "qa_automation_password")
     # login_page.click_login_button(login_page.find_login_button())
     assert login_page.find_element(AppiumBy.ACCESSIBILITY_ID, 'Log In') is not None
