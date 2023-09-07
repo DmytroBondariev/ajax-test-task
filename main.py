@@ -145,3 +145,7 @@ def test_user_login(user_login_fixture, email, password, expected_result):
         logging.info("Login expected to fail. Asserting failure.")
 
         assert_login_failed(login_page)
+
+
+if __name__ == '__main__':
+    pytest.main(['-s', '-v', 'main.py'])
