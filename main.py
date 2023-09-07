@@ -15,6 +15,9 @@ logging.basicConfig(level=logging.INFO,
                               logging.StreamHandler(sys.stdout)]
                     )
 
+udid_command = subprocess.check_output(["adb", "devices"]).decode("utf-8")
+udid = udid_command.split("\n")[1].split("\t")[0]
+
 capabilities = {
     'autoGrantPermissions': True,
     'automationName': 'uiautomator2',
@@ -25,7 +28,7 @@ capabilities = {
     'resetKeyboard': True,
     'systemPort': 8301,
     'takesScreenshot': True,
-    'udid': 'adb-0e546ef2-EPRsBh._adb-tls-connect._tcp',
+    'udid': udid,
     'appPackage': 'com.ajaxsystems',
     'appActivity': 'com.ajaxsystems.ui.activity.LauncherActivity'
 }
