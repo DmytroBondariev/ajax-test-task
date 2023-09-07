@@ -57,7 +57,7 @@ class LoginPage(Page):
         password_field.send_keys(password)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def user_login_fixture(driver):
     yield LoginPage(driver)
 
@@ -71,7 +71,7 @@ def run_appium_server():
         stdin=subprocess.DEVNULL,
         shell=True
     )
-    time.sleep(5)
+    time.sleep(3)
 
 
 @pytest.fixture(scope='session')
@@ -81,10 +81,23 @@ def driver(run_appium_server):
     driver.quit()
 
 
-def test_user_login(user_login_fixture):
+@pytest.mark.parametrize("email, password, expected_result", [
+    ("qa.ajax.app.automation@gmail.com", "qa_automation_password", "success"),
+    ("invalid_email@example.com", "qa_automation_password", "failure"),
+    ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
+])
+def test_user_login(user_login_fixture, email, password, expected_result):
     login_page = user_login_fixture
     login_page.click_element(login_page.find_login_button())
-    login_page.enter_email(login_page.find_email_field(), "qa.ajax.app.automation@gmail.com")
-    login_page.enter_password(login_page.find_password_field(), "qa_automation_password")
-    # login_page.click_login_button(login_page.find_login_button())
-    assert login_page.find_element(AppiumBy.ACCESSIBILITY_ID, 'Log In') is not None
+    login_page.enter_email(login_page.find_email_field(), email)
+    login_page.enter_password(login_page.find_password_field(), password)
+    login_page.click_element(login_page.find_login_button())
+    time.sleep(3)
+
+    if expected_result == "success":
+        # Assert the success condition
+        assert login_page.find_element(AppiumBy.XPATH,
+                                       "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView") is not None
+    elif expected_result == "failure":
+        assert login_page.find_element(AppiumBy.XPATH,
+                                       "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView") is None
