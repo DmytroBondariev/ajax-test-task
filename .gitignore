@@ -1,2 +1,11 @@
 /.idea/
-
+/.pytest_cache/
+/tests/.pytest_cache/
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+dev_in_test_app_team/.idea/

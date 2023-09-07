@@ -1,9 +1,19 @@
+import sys
+
 from appium.webdriver.common.appiumby import AppiumBy
 import subprocess
 import time
 import pytest
 from appium import webdriver
 from selenium.common import NoSuchElementException
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='[%(asctime)s] [%(levelname)s] - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    handlers=[logging.FileHandler("test_logs.log"),
+                              logging.StreamHandler(sys.stdout)]
+                    )
 
 capabilities = {
     'autoGrantPermissions': True,
@@ -60,7 +70,10 @@ class LoginPage(Page):
 
 @pytest.fixture(scope='function', autouse=True)
 def user_login_fixture(driver):
+    logging.info("Setting up user_login_fixture")
+
     yield LoginPage(driver)
+    logging.info("Tearing down user_login_fixture")
 
 
 @pytest.fixture(scope='session')
@@ -77,8 +90,11 @@ def run_appium_server():
 
 @pytest.fixture(scope='function')
 def driver(run_appium_server):
+    logging.info("Setting up driver fixture")
+
     driver = webdriver.Remote('http://localhost:4723', capabilities)
     yield driver
+    logging.info("Tearing down driver fixture")
     driver.quit()
 
 
@@ -110,13 +126,22 @@ def assert_login_failed(login_page):
 ])
 def test_user_login(user_login_fixture, email, password, expected_result):
     login_page = user_login_fixture
+    logging.info(f"Logging in with email: {email} and password: {password}")
+
     login_page.click_element(login_page.find_login_button())
     login_page.enter_email(login_page.find_email_field(), email)
     login_page.enter_password(login_page.find_password_field(), password)
     login_page.click_element(login_page.find_login_button())
+
+    logging.info("Waiting for 3 seconds after clicking login button.")
+
     time.sleep(3)
 
     if expected_result == "success":
+        logging.info("Login successful. Asserting success.")
+
         assert_login_successful(login_page)
     elif expected_result == "failure":
+        logging.info("Login expected to fail. Asserting failure.")
+
         assert_login_failed(login_page)
