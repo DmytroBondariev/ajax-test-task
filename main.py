@@ -1,7 +1,6 @@
 from appium.webdriver.common.appiumby import AppiumBy
 import subprocess
 import time
-
 import pytest
 from appium import webdriver
 from selenium.common import NoSuchElementException
@@ -30,11 +29,13 @@ class Page:
     def find_element(self, *args, **kwargs):
         return self.driver.find_element(*args, **kwargs)
 
-    def click_element(self, *args, **kwargs):
-        return self.driver.click_element(*args, **kwargs)
+    @staticmethod
+    def click_element(element):
+        element.click()
 
 
 class LoginPage(Page):
+
     def find_login_button(self):
         return self.find_element(AppiumBy.XPATH, '//android.widget.TextView[@text="Log In"]')
 
@@ -48,13 +49,12 @@ class LoginPage(Page):
                         "android.view.View/android.widget.EditText"
         return self.find_element(AppiumBy.XPATH, xpath_locator)
 
-    def click_element(self, element):
-        element.click()
-
-    def enter_email(self, email_field, email):
+    @staticmethod
+    def enter_email(email_field, email):
         email_field.send_keys(email)
 
-    def enter_password(self, password_field, password):
+    @staticmethod
+    def enter_password(password_field, password):
         password_field.send_keys(password)
 
 
@@ -82,6 +82,25 @@ def driver(run_appium_server):
     driver.quit()
 
 
+def assert_login_successful(login_page):
+    assert login_page.find_element(AppiumBy.XPATH,
+                                   "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/"
+                                   "android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/"
+                                   "androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/"
+                                   "android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/"
+                                   "android.widget.FrameLayout/android.widget.ImageView") is not None
+
+
+def assert_login_failed(login_page):
+    with pytest.raises(NoSuchElementException):
+        login_page.find_element(AppiumBy.XPATH,
+                                "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/"
+                                "android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/"
+                                "androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/"
+                                "android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/"
+                                "android.widget.FrameLayout/android.widget.ImageView")
+
+
 @pytest.mark.parametrize("email, password, expected_result", [
     ("qa.ajax.app.automation@gmail.com", "qa_automation_password", "success"),
     ("invalid_email@example.com", "qa_automation_password", "failure"),
@@ -98,14 +117,6 @@ def test_user_login(user_login_fixture, email, password, expected_result):
     time.sleep(3)
 
     if expected_result == "success":
-
-        assert login_page.find_element(AppiumBy.XPATH,
-                                       "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView") is not None
+        assert_login_successful(login_page)
     elif expected_result == "failure":
-        try:
-            login_page.find_element(AppiumBy.XPATH,
-                                    "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView")
-        except NoSuchElementException:
-            pass
-        else:
-            raise AssertionError("Login was successful, but should have failed")
+        assert_login_failed(login_page)
