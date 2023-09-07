@@ -4,6 +4,7 @@ import time
 
 import pytest
 from appium import webdriver
+from selenium.common import NoSuchElementException
 
 capabilities = {
     'autoGrantPermissions': True,
@@ -74,7 +75,7 @@ def run_appium_server():
     time.sleep(3)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def driver(run_appium_server):
     driver = webdriver.Remote('http://localhost:4723', capabilities)
     yield driver
@@ -85,6 +86,7 @@ def driver(run_appium_server):
     ("qa.ajax.app.automation@gmail.com", "qa_automation_password", "success"),
     ("invalid_email@example.com", "qa_automation_password", "failure"),
     ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
+    ("", "", "failure")
 ])
 def test_user_login(user_login_fixture, email, password, expected_result):
     login_page = user_login_fixture
@@ -95,9 +97,14 @@ def test_user_login(user_login_fixture, email, password, expected_result):
     time.sleep(3)
 
     if expected_result == "success":
-        # Assert the success condition
+
         assert login_page.find_element(AppiumBy.XPATH,
                                        "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView") is not None
     elif expected_result == "failure":
-        assert login_page.find_element(AppiumBy.XPATH,
-                                       "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView") is None
+        try:
+            login_page.find_element(AppiumBy.XPATH,
+                                    "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView")
+        except NoSuchElementException:
+            pass
+        else:
+            raise AssertionError("Login was successful, but should have failed")
