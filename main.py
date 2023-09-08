@@ -8,6 +8,16 @@ from appium import webdriver
 from selenium.common import NoSuchElementException
 import logging
 
+login_button_xpath = '//android.widget.TextView[@text="Log In"]'
+
+email_field_xpath = '//android.widget.FrameLayout[1]/androidx.compose.ui.platform.ComposeView/' \
+                    'android.view.View/android.widget.EditText'
+
+password_field_xpath = "//android.widget.FrameLayout[2]/androidx.compose.ui.platform.ComposeView/" \
+                       "android.view.View/android.widget.EditText"
+
+burger_menu_xpath = "//android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView"
+
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] [%(levelname)s] - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -50,17 +60,13 @@ class Page:
 class LoginPage(Page):
 
     def find_login_button(self):
-        return self.find_element(AppiumBy.XPATH, '//android.widget.TextView[@text="Log In"]')
+        return self.find_element(AppiumBy.XPATH, login_button_xpath)
 
     def find_email_field(self):
-        xpath_locator = '//android.widget.FrameLayout[1]/androidx.compose.ui.platform.ComposeView/' \
-                        'android.view.View/android.widget.EditText'
-        return self.find_element(AppiumBy.XPATH, xpath_locator)
+        return self.find_element(AppiumBy.XPATH, email_field_xpath)
 
     def find_password_field(self):
-        xpath_locator = "//android.widget.FrameLayout[2]/androidx.compose.ui.platform.ComposeView/" \
-                        "android.view.View/android.widget.EditText"
-        return self.find_element(AppiumBy.XPATH, xpath_locator)
+        return self.find_element(AppiumBy.XPATH, password_field_xpath)
 
     @staticmethod
     def enter_email(email_field, email):
@@ -102,22 +108,18 @@ def driver(run_appium_server):
 
 
 def assert_login_successful(login_page):
-    assert login_page.find_element(AppiumBy.XPATH,
-                                   "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/"
-                                   "android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/"
-                                   "androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/"
-                                   "android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/"
-                                   "android.widget.FrameLayout/android.widget.ImageView") is not None
+    assert login_page.find_element(
+        AppiumBy.XPATH,
+        burger_menu_xpath
+    ) is not None
 
 
 def assert_login_failed(login_page):
     with pytest.raises(NoSuchElementException):
-        login_page.find_element(AppiumBy.XPATH,
-                                "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/"
-                                "android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/"
-                                "androidx.drawerlayout.widget.DrawerLayout/android.view.ViewGroup/"
-                                "android.view.ViewGroup/android.widget.LinearLayout/android.view.ViewGroup/"
-                                "android.widget.FrameLayout/android.widget.ImageView")
+        login_page.find_element(
+            AppiumBy.XPATH,
+            burger_menu_xpath
+        )
 
 
 @pytest.mark.parametrize("email, password, expected_result", [
