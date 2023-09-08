@@ -8,15 +8,9 @@ from appium import webdriver
 from selenium.common import NoSuchElementException
 import logging
 
-login_button_xpath = '//android.widget.TextView[@text="Log In"]'
-
-email_field_xpath = '//android.widget.FrameLayout[1]/androidx.compose.ui.platform.ComposeView/' \
-                    'android.view.View/android.widget.EditText'
-
-password_field_xpath = "//android.widget.FrameLayout[2]/androidx.compose.ui.platform.ComposeView/" \
-                       "android.view.View/android.widget.EditText"
-
-burger_menu_xpath = "//android.widget.LinearLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView"
+import utils.elements_xpath as xpath
+from dev_in_test_app_team.framework import LoginPage
+from utils.android_utils import android_get_desired_capabilities
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] [%(levelname)s] - %(message)s',
@@ -24,57 +18,6 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.FileHandler("test_logs.log"),
                               logging.StreamHandler(sys.stdout)]
                     )
-
-udid_command = subprocess.check_output(["adb", "devices"]).decode("utf-8")
-udid = udid_command.split("\n")[1].split("\t")[0]
-
-capabilities = {
-    'autoGrantPermissions': True,
-    'automationName': 'uiautomator2',
-    'newCommandTimeout': 500,
-    'noSign': True,
-    'platformName': 'Android',
-    'platformVersion': '11',
-    'resetKeyboard': True,
-    'systemPort': 8301,
-    'takesScreenshot': True,
-    'udid': udid,
-    'appPackage': 'com.ajaxsystems',
-    'appActivity': 'com.ajaxsystems.ui.activity.LauncherActivity'
-}
-
-
-class Page:
-
-    def __init__(self, driver):
-        self.driver = driver
-
-    def find_element(self, *args, **kwargs):
-        return self.driver.find_element(*args, **kwargs)
-
-    @staticmethod
-    def click_element(element):
-        element.click()
-
-
-class LoginPage(Page):
-
-    def find_login_button(self):
-        return self.find_element(AppiumBy.XPATH, login_button_xpath)
-
-    def find_email_field(self):
-        return self.find_element(AppiumBy.XPATH, email_field_xpath)
-
-    def find_password_field(self):
-        return self.find_element(AppiumBy.XPATH, password_field_xpath)
-
-    @staticmethod
-    def enter_email(email_field, email):
-        email_field.send_keys(email)
-
-    @staticmethod
-    def enter_password(password_field, password):
-        password_field.send_keys(password)
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -101,7 +44,7 @@ def run_appium_server():
 def driver(run_appium_server):
     logging.info("Setting up driver fixture")
 
-    driver = webdriver.Remote('http://localhost:4723', capabilities)
+    driver = webdriver.Remote('http://localhost:4723', android_get_desired_capabilities())
     yield driver
     logging.info("Tearing down driver fixture")
     driver.quit()
@@ -110,7 +53,7 @@ def driver(run_appium_server):
 def assert_login_successful(login_page):
     assert login_page.find_element(
         AppiumBy.XPATH,
-        burger_menu_xpath
+        xpath.burger_menu_xpath
     ) is not None
 
 
@@ -118,7 +61,7 @@ def assert_login_failed(login_page):
     with pytest.raises(NoSuchElementException):
         login_page.find_element(
             AppiumBy.XPATH,
-            burger_menu_xpath
+            xpath.burger_menu_xpath
         )
 
 
