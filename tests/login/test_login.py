@@ -1,10 +1,14 @@
+import os
 import time
 
 import pytest
 from appium.webdriver.common.appiumby import AppiumBy
+from dotenv import load_dotenv
 from selenium.common import NoSuchElementException
 
 import dev_in_test_app_team.utils.elements_xpath as xpath
+
+load_dotenv()
 
 
 def assert_login_successful(login_page):
@@ -23,7 +27,7 @@ def assert_login_failed(login_page):
 
 
 @pytest.mark.parametrize("email, password, expected_result", [
-    ("qa.ajax.app.automation@gmail.com", "qa_automation_password", "success"),
+    (os.getenv("TEST_EMAIL"), os.getenv("TEST_PASSWORD"), "success"),
     ("invalid_email@example.com", "qa_automation_password", "failure"),
     ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
     ("qa.ajax.app.automation@gmail.com", "  ", "failure"),
