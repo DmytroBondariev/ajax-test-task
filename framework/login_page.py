@@ -5,7 +5,6 @@ import dev_in_test_app_team.utils.elements_xpath as xpath
 
 
 class LoginPage(Page):
-
     def find_login_button(self):
         return self.find_element(AppiumBy.XPATH, xpath.login_button_xpath)
 

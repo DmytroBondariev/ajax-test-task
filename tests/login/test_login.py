@@ -20,19 +20,19 @@ def assert_login_successful(login_page):
 
 def assert_login_failed(login_page):
     with pytest.raises(NoSuchElementException):
-        login_page.find_element(
-            AppiumBy.XPATH,
-            xpath.burger_menu_xpath
-        )
+        login_page.find_element(AppiumBy.XPATH, xpath.burger_menu_xpath)
 
 
-@pytest.mark.parametrize("email, password, expected_result", [
-    (os.getenv("TEST_EMAIL"), os.getenv("TEST_PASSWORD"), "success"),
-    ("invalid_email@example.com", "qa_automation_password", "failure"),
-    ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
-    ("qa.ajax.app.automation@gmail.com", "  ", "failure"),
-    ("  ", "qa_automation_password", "failure"),
-])
+@pytest.mark.parametrize(
+    "email, password, expected_result",
+    [
+        (os.getenv("TEST_EMAIL"), os.getenv("TEST_PASSWORD"), "success"),
+        ("invalid_email@example.com", "qa_automation_password", "failure"),
+        ("qa.ajax.app.automation@gmail.com", "invalid_password", "failure"),
+        ("qa.ajax.app.automation@gmail.com", "  ", "failure"),
+        ("  ", "qa_automation_password", "failure"),
+    ],
+)
 def test_user_login(user_login_fixture, email, password, expected_result):
     login_page = user_login_fixture
     login_page.click_element(login_page.find_login_button())
@@ -43,8 +43,6 @@ def test_user_login(user_login_fixture, email, password, expected_result):
     time.sleep(4)
 
     if expected_result == "success":
-
         assert_login_successful(login_page)
     elif expected_result == "failure":
-
         assert_login_failed(login_page)
