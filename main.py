@@ -94,7 +94,7 @@ def run_appium_server():
         stdin=subprocess.DEVNULL,
         shell=True
     )
-    time.sleep(3)
+    time.sleep(5)
 
 
 @pytest.fixture(scope='function')
@@ -140,7 +140,7 @@ def test_user_login(user_login_fixture, email, password, expected_result):
 
     logging.info("Waiting for 3 seconds after clicking login button.")
 
-    time.sleep(3)
+    time.sleep(4)
 
     if expected_result == "success":
         logging.info("Login successful. Asserting success.")
